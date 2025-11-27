@@ -1,14 +1,14 @@
-const express = require('express');
-const cors = require('cors');
-const helmet = require('helmet');
-const morgan = require('morgan');
-const rateLimit = require('express-rate-limit');
+import express from "express";
+import cors from "cors";
+import helmet from "helmet";
+import morgan from "morgan";
+import rateLimit from "express-rate-limit";
 
-// const authRoutes = require('./routes/authRoutes');
-// const linkRoutes = require('./routes/linkRoutes');
-// const analyticsRoutes = require('./routes/analyticsRoutes');
-// const { errorHandler } = require('./middlewares/errorHandler');
-const config = require('./config/env');
+import authRoutes from "./routes/authRoutes.js";
+// import linkRoutes from "./routes/linkRoutes.js";
+// import analyticsRoutes from "./routes/analyticsRoutes.js";
+import { errorHandler } from "./middlewares/errorHandler.js";
+import config from "./config/env.js";
 
 const app = express();
 
@@ -26,11 +26,14 @@ const limiter = rateLimit({
 app.use(limiter);
 
 // Routes
-// app.use('/api/auth', authRoutes);
+app.get("/", (req, res) => {
+  res.send("API is running...");
+});
+
+app.use('/api/auth', authRoutes);
 // app.use('/api/links', linkRoutes);
 // app.use('/api/analytics', analyticsRoutes);
 
-// Error Handler (Central)
-// app.use(errorHandler);
+app.use(errorHandler);
 
-module.exports = app;
+export default app;

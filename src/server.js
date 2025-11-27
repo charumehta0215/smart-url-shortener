@@ -1,6 +1,6 @@
-const mongoose = require('mongoose');
-const app = require('./app');
-const config = require('./config/env');
+import mongoose from "mongoose";
+import app from "./app.js";
+import config from "./config/env.js";
 
 mongoose.connect(config.mongoUri)
   .then(() => {
