@@ -7,7 +7,7 @@ export const registerUserService = async ({email,password}) => {
         throw new Error ("Email already Registered")
     }
 
-    const user = User.create({email,password});
+    const user = await User.create({email,password});
 
     const token = generateJwt(user._id);
     return { token , user : {

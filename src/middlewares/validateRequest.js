@@ -1,7 +1,9 @@
 import { HTTP_STATUS } from "../constants/httpStatus.js";
 
 export const validate = (schema) => (req, res, next) => {
+
   const parsed = schema.safeParse(req.body);
+  console.log("VALIDATOR RECEIVED BODY:", req.body);
 
   if (!parsed.success) {
     const firstError = parsed.error.issues[0].message; 

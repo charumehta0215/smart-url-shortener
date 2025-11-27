@@ -1,7 +1,5 @@
 import { z } from "zod";
 
-console.log("📌 AUTH SCHEMA LOADED");
-
 export const registerSchema = z.object({
   email: z.string().email("Invalid email"),
   password: z

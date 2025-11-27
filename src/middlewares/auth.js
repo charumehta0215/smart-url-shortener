@@ -2,18 +2,18 @@ import jwt from "jsonwebtoken";
 import User from "../models/user.js";
 import { HTTP_STATUS } from "../constants/httpStatus.js";
 
-export const authMiddleware = async(req,res,next) => {
+const authMiddleware = async(req,res,next) => {
     try{
         const authorization = req.headers.authorization;
 
-        if(!authorization || !authorization.startswith('Bearer')){
+        if(!authorization || !authorization.startsWith('Bearer')){
             return res.status(HTTP_STATUS.UNAUTHORIZED).json({
                 success : false,
                 message : "Authentication Required",
             })
         }
 
-        const token = authorization.split("")[1];
+        const token = authorization.split(" ")[1];
 
         let decoded;
         try{
@@ -39,3 +39,5 @@ export const authMiddleware = async(req,res,next) => {
         next(err);
     }
 }
+
+export default authMiddleware;
