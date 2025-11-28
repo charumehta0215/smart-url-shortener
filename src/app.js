@@ -3,12 +3,11 @@ import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import rateLimit from "express-rate-limit";
-
+import config from "./config/env.js";
 import authRoutes from "./routes/authRoutes.js";
 import linkRoutes from "./routes/linkRoutes.js";
 import analyticsRoutes from "./routes/analyticsRoutes.js";
 import { errorHandler } from "./middlewares/errorHandler.js";
-import config from "./config/env.js";
 
 const app = express();
 
@@ -17,7 +16,9 @@ app.use(cors());
 app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(morgan('dev'));
+if (config.nodeEnv === "development") {
+  app.use(morgan("dev"));
+}
 
 // Rate Limiter
 const limiter = rateLimit({

@@ -1,5 +1,5 @@
-import Link from "../models/link.js"
-import Click from "../models/click.js"
+import Link from "../models/link.js";
+import Click from "../models/click.js";
 import { generateShortCode } from "../utils/generateShortCode.js";
 
 export const createShortLink = async ({longURL,userId}) => {

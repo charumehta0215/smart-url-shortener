@@ -1,12 +1,14 @@
-import mongoose from "mongoose";
 import app from "./app.js";
+import connectDB from "./config/db.js";
 import config from "./config/env.js";
+import logger from "./config/logger.js";
 
-mongoose.connect(config.mongoUri)
-  .then(() => {
-    console.log('MongoDB connected');
-    app.listen(config.port, () => {
-      console.log(`Server running on port ${config.port}`);
-    });
-  })
-  .catch(err => console.error('MongoDB connection error:', err));
+const startServer = async () => {
+  await connectDB();
+
+  app.listen(config.port, () => {
+    logger.info(`Server running on port ${config.port}`);
+  });
+};
+
+startServer();

@@ -1,9 +1,9 @@
 import Groq from "groq-sdk";
-import dotenv from "dotenv";
-dotenv.config();
+import config from "../config/env.js";
+import logger from "../config/logger.js";
 
 const client = new Groq({
-  apiKey: process.env.GROQ_API_KEY
+  apiKey: config.groqApiKey,
 });
 
 export const callAI = async (prompt) => {
@@ -18,7 +18,7 @@ export const callAI = async (prompt) => {
     return response.choices[0].message.content;
 
   } catch (error) {
-    console.error("Groq AI Error:", error.message);
+    logger.error("Groq AI Error:", error.message);
     return "AI summary unavailable right now.";
   }
 };

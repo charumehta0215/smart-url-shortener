@@ -1,15 +1,7 @@
-// const winston = require('winston');
+const logger = {
+  info: (msg) => console.log(`INFO: ${msg}`),
+  warn: (msg) => console.warn(`WARN: ${msg}`),
+  error: (msg) => console.error(`ERROR: ${msg}`),
+};
 
-// const logger = winston.createLogger({
-//   level: 'info',
-//   format: winston.format.json(),
-//   defaultMeta: { service: 'user-service' },
-//   transports: [
-//     new winston.transports.File({ filename: 'combined.log' }),
-//   ],
-// });
-// if (process.env.NODE_ENV !== 'production') {
-//   logger.add(new winston.transports.Console({
-//     format: winston.format.simple(),
-//   }));
-// }
+export default logger;
