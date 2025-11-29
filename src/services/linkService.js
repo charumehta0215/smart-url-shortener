@@ -1,6 +1,7 @@
 import Link from "../models/link.js";
 import Click from "../models/click.js";
 import { generateShortCode } from "../utils/generateShortCode.js";
+import  redisClient  from "../config/redis.js";
 
 export const createShortLink = async ({longURL,userId}) => {
     if (!longURL || !userId) {
@@ -21,6 +22,8 @@ export const createShortLink = async ({longURL,userId}) => {
         userId,
     });
 
+    await redisClient.set(slug, longURL);
+
     return {
         id :  newLink._id,
         slug : newLink.slug,
@@ -31,7 +34,18 @@ export const createShortLink = async ({longURL,userId}) => {
 }
 
 export const getLongURLService = async (slug) => {
+    const cachedURL = await redisClient.get(slug);
+
+    if (cachedURL) {
+        return { longURL: cachedURL };
+    }
+
     const link = await Link.findOne({slug});
+
+    if (!link) return null;
+
+    await redisClient.set(slug, link.longURL);
+
     return link;
 }
 

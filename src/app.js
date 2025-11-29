@@ -7,9 +7,14 @@ import config from "./config/env.js";
 import authRoutes from "./routes/authRoutes.js";
 import linkRoutes from "./routes/linkRoutes.js";
 import analyticsRoutes from "./routes/analyticsRoutes.js";
+import redisRateLimit from "./middlewares/redisRateLimit.js";
 import { errorHandler } from "./middlewares/errorHandler.js";
 
 const app = express();
+
+// Rate Limiter
+app.use(redisRateLimit(100,15*60));
+app.use('/api/auth', redisRateLimit(20, 15 * 60));
 
 // Middlewares
 app.use(cors());
@@ -19,13 +24,6 @@ app.use(express.urlencoded({ extended: true }));
 if (config.nodeEnv === "development") {
   app.use(morgan("dev"));
 }
-
-// Rate Limiter
-const limiter = rateLimit({
-  windowMs: config.rateLimitWindow * 60 * 1000,
-  max: config.rateLimitMax
-});
-app.use(limiter);
 
 // Routes
 app.get("/", (req, res) => {

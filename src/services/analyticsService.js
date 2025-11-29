@@ -2,8 +2,15 @@ import Link from "../models/link.js";
 import Click from "../models/click.js";
 import { geoLookup } from "../utils/geoLookup.js";
 import { callAI } from "../utils/callAI.js";
+import redisClient from "../config/redis.js";
 
 export const getAnalyticsService = async (slug,userId) => {
+
+    const cacheKey = `analytics:${slug}`;
+    const cached = await redisClient.get(cacheKey);
+    if (cached) {
+        return JSON.parse(cached);
+    }
 
     const link = await Link.findOne({slug});
 
@@ -66,7 +73,7 @@ export const getAnalyticsService = async (slug,userId) => {
         aiSummary = "AI summary unavailable";
     }
 
-    return {
+    const analyticsResult = {
         slug : link.slug,
         longURL : link.longURL,
         totalClicks : clicks.length,
@@ -77,4 +84,8 @@ export const getAnalyticsService = async (slug,userId) => {
         aiSummary,
         createdAt : link.createdAt,
     }
+
+    await redisClient.set(cacheKey, JSON.stringify(analyticsResult), { EX: 300 });
+
+    return analyticsResult;
 };
