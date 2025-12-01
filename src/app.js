@@ -17,7 +17,12 @@ app.use(redisRateLimit(100,15*60));
 app.use('/api/auth', redisRateLimit(20, 15 * 60));
 
 // Middlewares
-app.use(cors());
+// app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:8080',
+  credentials: true
+}));
+
 app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

@@ -54,3 +54,26 @@ export const logClickService = async (slug,clickData) => {
     await Link.updateOne({slug},{ $inc : {clicksCount : 1} });
 }
 
+export const getAllLinks = async(userId,page = 1,limit = 20) => {
+    if(!userId){
+        throw new Error("userId is required");
+    }
+
+    const skip = (page-1)*limit;
+
+    const links = await Link.find({userId})
+        .sort({createdAt : -1})
+        .skip(skip)
+        .limit(limit)
+        .lean();
+
+    const total = await Link.countDocuments({userId});
+
+    return {
+        links,
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total/limit),
+    };
+}

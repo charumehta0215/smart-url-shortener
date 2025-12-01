@@ -1,5 +1,8 @@
 import { createShortLink,getLongURLService,logClickService} from "../services/linkService.js";
 import { HTTP_STATUS } from "../constants/httpStatus.js";
+import { isImageUrl } from "../utils/url.js";
+import { getAllLinks } from "../services/linkService.js";
+import { success } from "zod";
 
 export const createShortlinkController = async(req,res,next) => {
     try{
@@ -33,7 +36,12 @@ export const redirectController = async(req,res,next) => {
             });
         }
 
-        const ip = req.headers["x-forwarded-for"]?.split(",")[0] ||req.ip ||req.connection?.remoteAddress || "";
+        let ip = req.headers["x-forwarded-for"]?.split(",")[0] ||req.ip ||req.connection?.remoteAddress || "" ||
+             "127.0.0.1";
+
+        if (ip === "::1") ip = "127.0.0.1";          
+        if (ip.startsWith("::ffff:")) ip = ip.split(":").pop();
+
         const userAgent = req.get("user-agent") || "Unknown Device";
         const referrer = req.get("referer") || "direct";
 
@@ -45,8 +53,31 @@ export const redirectController = async(req,res,next) => {
         }
 
         await logClickService(slug,clickData);
+
+        if (isImageUrl(link.longURL)) {
+            return res.redirect(link.longURL);
+        }
         return res.redirect(link.longURL);
 
+    }catch(err){
+        next(err);
+    }
+}
+
+export const getAllLinksController = async(req,res,next) => {
+    try{
+        const userId = req.user._id;
+
+        const page = parseInt(req.query.page || 1);
+        const limit = parseInt(req.query.limit || 20);
+
+        const result = await getAllLinks(userId,page,limit);
+
+        return res.status(HTTP_STATUS.OK).json({
+            success: true,
+            message: "Links fetched Successfully",
+            data: result,
+        })
     }catch(err){
         next(err);
     }
