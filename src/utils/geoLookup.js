@@ -25,6 +25,8 @@ export const geoLookup = async (ip) => {
 
         await redisClient.set(cacheKey, countryName, { EX: 86400 });
 
+        return countryName;
+
     }catch(err){
         logger.error(`Geo lookup error: ${err.message}`);
         return "Unknown";

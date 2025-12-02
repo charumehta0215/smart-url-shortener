@@ -1,4 +1,4 @@
-import { getAnalyticsService } from "../services/analyticsService.js";
+import { getAnalyticsService,getGlobalAnalyticsService } from "../services/analyticsService.js";
 import { HTTP_STATUS } from "../constants/httpStatus.js";
 
 export const getAnalyticsController = async(req,res,next) => {
@@ -14,6 +14,22 @@ export const getAnalyticsController = async(req,res,next) => {
         });
 
     }catch(err){
+        next(err);
+    }
+};
+
+export const getGlobalAnalyticsController = async (req, res, next) => {
+    try {
+        const userId = req.user._id;
+        const result = await getGlobalAnalyticsService(userId);
+
+        res.status(200).json({
+            success: true,
+            message: "Global analytics fetched successfully",
+            data: result,
+        });
+
+    } catch (err) {
         next(err);
     }
 };

@@ -52,6 +52,11 @@ export const getLongURLService = async (slug) => {
 export const logClickService = async (slug,clickData) => {
     await Click.create(clickData);
     await Link.updateOne({slug},{ $inc : {clicksCount : 1} });
+
+    await redisClient.del(`analytics:${slug}`);  
+    if (clickData.userId) {
+        await redisClient.del(`analytics:global:${clickData.userId}`);
+    }
 }
 
 export const getAllLinks = async(userId,page = 1,limit = 20) => {
@@ -77,3 +82,5 @@ export const getAllLinks = async(userId,page = 1,limit = 20) => {
         totalPages: Math.ceil(total/limit),
     };
 }
+
+
