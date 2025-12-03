@@ -10,6 +10,7 @@ import analyticsRoutes from "./routes/analyticsRoutes.js";
 import redisRateLimit from "./middlewares/redisRateLimit.js";
 import { errorHandler } from "./middlewares/errorHandler.js";
 
+
 const app = express();
 
 // Rate Limiter
@@ -19,7 +20,7 @@ app.use('/api/auth', redisRateLimit(20, 15 * 60));
 // Middlewares
 // app.use(cors());
 app.use(cors({
-  origin: 'http://localhost:8080',
+  origin: config.Origin,
   credentials: true
 }));
 

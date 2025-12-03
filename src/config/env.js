@@ -10,7 +10,8 @@ const config = {
   openAiKey: process.env.OPENAI_API_KEY,
   rateLimitWindow: process.env.RATE_LIMIT_WINDOW || 15,
   rateLimitMax: process.env.RATE_LIMIT_MAX || 100,
-  groqApiKey: process.env.GROQ_API_KEY
+  groqApiKey: process.env.GROQ_API_KEY,
+  Origin:process.env.ORIGIN
 };
 
 export default config;
