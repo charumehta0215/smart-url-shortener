@@ -26,6 +26,11 @@ export const redirectController = async(req,res,next) => {
     try{
         const {slug} = req.params;
 
+        const isInternal =
+            req.query.source === "internal" ||
+            req.query.internal === "true" ||
+            req.query.from === "dashboard";
+
         const link = await getLongURLService(slug);
 
         if(!link){
@@ -33,6 +38,10 @@ export const redirectController = async(req,res,next) => {
                 success : false,
                 message : "Short URL not found",
             });
+        }
+
+        if (isInternal) {
+            return res.redirect(link.longURL);
         }
 
         let ip = req.headers["x-forwarded-for"]?.split(",")[0] ||req.ip ||req.connection?.remoteAddress || "" ||

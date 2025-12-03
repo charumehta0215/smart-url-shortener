@@ -22,7 +22,10 @@ export const createShortLink = async ({longURL,userId}) => {
         userId,
     });
 
-    await redisClient.set(slug, longURL);
+    await redisClient.set(
+        `link:${slug}`,
+        JSON.stringify(newLink.toObject ? newLink.toObject() : newLink)
+    );
 
     await redisClient.del(`analytics:global:${userId}`);
 
@@ -36,17 +39,21 @@ export const createShortLink = async ({longURL,userId}) => {
 }
 
 export const getLongURLService = async (slug) => {
-    const cachedURL = await redisClient.get(slug);
+    const cacheKey = `link:${slug}`;
+    const cached = await redisClient.get(cacheKey);
 
-    if (cachedURL) {
-        return { longURL: cachedURL };
+    if (cached) {
+        return JSON.parse(cached);
     }
 
     const link = await Link.findOne({slug});
 
     if (!link) return null;
 
-    await redisClient.set(slug, link.longURL);
+   await redisClient.set(
+    cacheKey,
+    JSON.stringify(link.toObject ? link.toObject() : link)
+   );
 
     return link;
 }
@@ -135,7 +142,7 @@ export const updateLinkService = async (slug,userId,newSlug) => {
         clicksCount: 0,         
     });
 
-    await redisClient.del(slug); 
+    await redisClient.del(`link:${slug}`); 
     await redisClient.del(`analytics:${slug}`);
     await redisClient.del(`analytics:${newSlug}`);
     await redisClient.del(`analytics:global:${userId}`);
