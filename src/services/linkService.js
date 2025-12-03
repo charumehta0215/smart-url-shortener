@@ -30,7 +30,7 @@ export const createShortLink = async ({longURL,userId}) => {
     await redisClient.del(`analytics:global:${userId}`);
 
     return {
-        id :  newLink._id,
+        _id :  newLink._id,
         slug : newLink.slug,
         longURL : newLink.longURL,
         clicksCount : newLink.clicksCount,
