@@ -59,7 +59,7 @@ export const logClickService = async (slug,clickData) => {
     }
 }
 
-export const getAllLinks = async(userId,page = 1,limit = 20) => {
+export const getAllLinksService = async(userId,page = 1,limit = 20) => {
     if(!userId){
         throw new Error("userId is required");
     }
@@ -84,3 +84,64 @@ export const getAllLinks = async(userId,page = 1,limit = 20) => {
 }
 
 
+export const deleteLinkService = async (slug,userId) => {
+    const link = await Link.findOne({slug});
+
+    if(!link){
+        throw new Error("Link not found")
+    }
+
+    if(link.userId.toString() !== userId.toString()){
+        throw new Error("Not Authorized to delete this link");
+    }
+
+    await Link.deleteOne({slug});
+
+    await Click.deleteMany({slug});
+
+    await redisClient.del(`analytics:${slug}`);
+    await redisClient.del(`analytics:global:${userId}`);
+
+    return {message : "Link deleted successfully"};
+
+}
+
+export const updateLinkService = async (slug,userId,newSlug) => {
+    const link = await Link.findOne({slug});
+
+    if(!link){
+        throw new Error("Link not found")
+    }
+
+    if(link.userId.toString() !== userId.toString()){
+        throw new Error("Not authorized to update this link");
+    }
+
+    if (!newSlug || newSlug === slug) {
+        throw new Error("New slug must be different");
+    }
+
+    const exists = await Link.findOne({ slug: newSlug });
+    if (exists) {
+        throw new Error("This back-half is already taken");
+    }
+
+    const newLink = await Link.create({
+        slug: newSlug,
+        longURL: link.longURL,    
+        userId: link.userId,
+        clicksCount: 0,         
+    });
+
+    await redisClient.del(slug); 
+    await redisClient.del(`analytics:${slug}`);
+    await redisClient.del(`analytics:${newSlug}`);
+    await redisClient.del(`analytics:global:${userId}`);
+
+    return {
+        message: "Back-half updated successfully",
+        oldSlug: slug,
+        data: newLink,
+    };
+
+}

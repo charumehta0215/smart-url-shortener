@@ -1,8 +1,7 @@
 import { createShortLink,getLongURLService,logClickService} from "../services/linkService.js";
 import { HTTP_STATUS } from "../constants/httpStatus.js";
 import { isImageUrl } from "../utils/url.js";
-import { getAllLinks } from "../services/linkService.js";
-import { success } from "zod";
+import { getAllLinksService ,updateLinkService,deleteLinkService } from "../services/linkService.js";
 
 export const createShortlinkController = async(req,res,next) => {
     try{
@@ -50,6 +49,7 @@ export const redirectController = async(req,res,next) => {
             ip,
             device : {raw : userAgent},
             referrer,
+            userId: link.userId, 
         }
 
         await logClickService(slug,clickData);
@@ -71,7 +71,7 @@ export const getAllLinksController = async(req,res,next) => {
         const page = parseInt(req.query.page || 1);
         const limit = parseInt(req.query.limit || 20);
 
-        const result = await getAllLinks(userId,page,limit);
+        const result = await getAllLinksService(userId,page,limit);
 
         return res.status(HTTP_STATUS.OK).json({
             success: true,
@@ -79,6 +79,47 @@ export const getAllLinksController = async(req,res,next) => {
             data: result,
         })
     }catch(err){
+        next(err);
+    }
+}
+
+export const deleteLinkController = async(req,res,next) => {
+    try{
+        const { slug } = req.params;
+
+        const result = await deleteLinkService(
+            slug,
+            req.user._id,
+        )
+
+        return res.status(HTTP_STATUS.OK).json({
+            success: true,
+            message : result.message,
+        })
+    }catch(err){
+        next(err);
+    }
+}
+
+export const updateLinkController = async(req,res,next) => {
+    try{
+        const { slug } = req.params;
+        const { newSlug } = req.body;
+
+        const result = await updateLinkService(
+            slug,
+            req.user._id,
+            newSlug,
+        )
+
+        return res.status(HTTP_STATUS.OK).json({
+            success: true,
+            message: result.message,
+            data: result.data,
+            oldSlug: result.oldSlug
+        });
+
+    } catch(err){
         next(err);
     }
 }
