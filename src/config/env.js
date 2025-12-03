@@ -11,7 +11,7 @@ const config = {
   rateLimitWindow: process.env.RATE_LIMIT_WINDOW || 15,
   rateLimitMax: process.env.RATE_LIMIT_MAX || 100,
   groqApiKey: process.env.GROQ_API_KEY,
-  Origin:process.env.ORIGIN
+  Origin:process.env.ORIGIN ? process.env.ORIGIN.split(',') : ['http://localhost:8080']
 };
 
 export default config;
