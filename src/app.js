@@ -28,10 +28,7 @@ if (config.nodeEnv === "development") {
 }
 
 // Global rate limit
-app.use(redisRateLimit(100, 15 * 60));
-
-// Specific limit for auth routes
-app.use('/api/auth', redisRateLimit(20, 15 * 60));
+app.use(redisRateLimit(500, 15 * 60));
 
 app.get("/", (req, res) => {
   res.send("API is running...");
