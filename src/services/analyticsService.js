@@ -3,9 +3,6 @@ import Click from "../models/click.js";
 import { geoLookup } from "../utils/geoLookup.js";
 import { callAI } from "../utils/callAI.js";
 import redisClient from "../config/redis.js";
-import * as UAParserModule from "ua-parser-js";
-const UAParser =
-  UAParserModule.UAParser || UAParserModule.default || UAParserModule;
 
 export const getAnalyticsService = async (slug,userId) => {
 

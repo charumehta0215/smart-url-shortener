@@ -6,13 +6,15 @@ const clickSchema = new mongoose.Schema(
             type :String,
             required : [true,"Slug is required"],
         },
-        ip :{
-            type : String,
-            required : [true ,"Ip address is required"],
+        ip: {  
+            type: String,
+            required: [true, "IP address is required"],
             validate(value) {
-                if(!value.match(/^(?:\d{1,3}\.){3}\d{1,3}$/)){
-                    throw new Error("Invalid IP address format");
-                }
+            const ipv4 = /^(?:\d{1,3}\.){3}\d{1,3}$/;
+            const ipv6 = /^([0-9a-fA-F]{0,4}:){2,7}[0-9a-fA-F]{0,4}$/;
+            if (!ipv4.test(value) && !ipv6.test(value) && value !== "127.0.0.1") {
+                throw new Error("Invalid IP address format");
+            }
             }
         },
         device: {
@@ -21,16 +23,11 @@ const clickSchema = new mongoose.Schema(
             browser: { type: String },
             type: { type: String },
         },
-        referrer : {
-            type : String,
-            validate(value) {
-                if (value === "direct") return true;
-                if (/^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value)) return true;
-                if (/^https?:\/\/.+/.test(value)) return true;
-                throw new Error("Invalid referrer value");
-            }
+        referrer: {
+            type: String,
+            default: "direct",
         },
-         userId : {
+        userId : {
             type : mongoose.Schema.Types.ObjectId,
             ref : 'User',
         },

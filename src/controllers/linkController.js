@@ -72,6 +72,17 @@ export const redirectController = async(req,res,next) => {
         const os = parsed.os?.name || "Unknown";
         const deviceType = parsed.device?.type || "desktop";
 
+        const dedupeKey = `click:${slug}:${ip}:${browser}`;
+
+        const alreadyClicked = await redisClient.get(dedupeKey);
+        if (alreadyClicked) {
+            console.log("Duplicate click skipped");
+            return res.redirect(link.longURL);
+        }
+        
+        await redisClient.set(dedupeKey, "1", { EX: 10 });
+
+
         const clickData = {
             slug,
             ip,
