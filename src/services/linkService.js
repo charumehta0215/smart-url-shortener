@@ -59,7 +59,9 @@ export const getLongURLService = async (slug) => {
 }
 
 export const logClickService = async (slug,clickData) => {
-    await Click.create(clickData);
+    console.log("clickData : ",clickData);
+    const a = await Click.create(clickData);
+    console.log("a : ",a);
     await Link.updateOne({slug},{ $inc : {clicksCount : 1} });
 
     await redisClient.del(`analytics:${slug}`);  

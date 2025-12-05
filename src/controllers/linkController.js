@@ -2,6 +2,10 @@ import { createShortLink,getLongURLService,logClickService} from "../services/li
 import { HTTP_STATUS } from "../constants/httpStatus.js";
 import { isImageUrl } from "../utils/url.js";
 import { getAllLinksService ,updateLinkService,deleteLinkService } from "../services/linkService.js";
+import * as UAParserModule from "ua-parser-js";
+import redisClient from "../config/redis.js";
+const UAParser =
+  UAParserModule.UAParser || UAParserModule.default || UAParserModule;
 
 export const createShortlinkController = async(req,res,next) => {
     try{
@@ -50,22 +54,46 @@ export const redirectController = async(req,res,next) => {
         if (ip === "::1") ip = "127.0.0.1";          
         if (ip.startsWith("::ffff:")) ip = ip.split(":").pop();
 
-        const userAgent = req.get("user-agent") || "Unknown Device";
-        const referrer = req.get("referer") || "direct";
+        const rawRef = req.get("referer") || req.get("referrer") || "";
+
+        let referrer = "direct";
+        try {
+            if (rawRef && rawRef !== "direct") {
+                referrer = new URL(rawRef).hostname.replace("www.", "");
+            }
+        } catch {
+            referrer = "direct";
+        }
+
+        const rawUA = req.get("user-agent") || "";
+        const parser = new UAParser(rawUA);
+        const parsed = parser.getResult();
+        const browser = parsed.browser?.name || "Unknown";
+        const os = parsed.os?.name || "Unknown";
+        const deviceType = parsed.device?.type || "desktop";
 
         const clickData = {
             slug,
             ip,
-            device : {raw : userAgent},
+            device: {
+                raw: rawUA,
+                browser,
+                os,
+                type: deviceType
+            },
             referrer,
-            userId: link.userId, 
-        }
+            userId: link.userId
+        };
 
         await logClickService(slug,clickData);
 
         if (isImageUrl(link.longURL)) {
             return res.redirect(link.longURL);
         }
+
+        await redisClient.del(`analytics:${slug}`);
+        await redisClient.del(`analytics:global:${link.userId}`);
+
         return res.redirect(link.longURL);
 
     }catch(err){

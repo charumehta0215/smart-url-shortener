@@ -3,6 +3,9 @@ import Click from "../models/click.js";
 import { geoLookup } from "../utils/geoLookup.js";
 import { callAI } from "../utils/callAI.js";
 import redisClient from "../config/redis.js";
+import * as UAParserModule from "ua-parser-js";
+const UAParser =
+  UAParserModule.UAParser || UAParserModule.default || UAParserModule;
 
 export const getAnalyticsService = async (slug,userId) => {
 
@@ -29,22 +32,16 @@ export const getAnalyticsService = async (slug,userId) => {
         const date = click.createdAt.toISOString().split("T")[0];
         clicksByDate[date] = (clicksByDate[date] || 0 ) + 1;
     });
-
+    
     const browsers = {};
-    clicks.forEach((click) => {
-        const ua = click.device?.raw || "Unknown";
-
-        let browser = "Unknown";
-        if(ua.includes("Chrome")) browser = "Chrome";
-        else if (ua.includes("Firefox")) browser = "Firefox";
-        else if(ua.includes("Safari")) browser = "Safari";
-        else if(ua.includes("Edge")) browser = "Edge";
-
+    clicks.forEach(click => {
+        console.log("click : ",click);
+        const browser = click.device?.browser || "Unknown";
         browsers[browser] = (browsers[browser] || 0) + 1;
     });
 
     const referrers = {};
-    clicks.forEach((click) => {
+    clicks.forEach(click => {
         const ref = click.referrer || "direct";
         referrers[ref] = (referrers[ref] || 0) + 1;
     });
@@ -130,20 +127,13 @@ export const getGlobalAnalyticsService = async(userId) => {
     });
 
     const browsers = {};
-    clicks.forEach((click) => {
-        const ua = click.device?.raw || "Unknown";
-
-        let browser = "Unknown";
-        if(ua.includes("Chrome")) browser = "Chrome";
-        else if (ua.includes("Firefox")) browser = "Firefox";
-        else if(ua.includes("Safari")) browser = "Safari";
-        else if(ua.includes("Edge")) browser = "Edge";
-
+    clicks.forEach(click => {
+        const browser = click.device?.browser || "Unknown";
         browsers[browser] = (browsers[browser] || 0) + 1;
     });
 
     const referrers = {};
-    clicks.forEach((click) => {
+    clicks.forEach(click => {
         const ref = click.referrer || "direct";
         referrers[ref] = (referrers[ref] || 0) + 1;
     });
