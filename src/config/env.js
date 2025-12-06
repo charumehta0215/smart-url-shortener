@@ -11,7 +11,11 @@ const config = {
   rateLimitWindow: process.env.RATE_LIMIT_WINDOW || 15,
   rateLimitMax: process.env.RATE_LIMIT_MAX || 100,
   groqApiKey: process.env.GROQ_API_KEY,
-  Origin:process.env.ORIGIN ? process.env.ORIGIN.split(',') : ['http://localhost:8080']
+  Origin:process.env.ORIGIN ? process.env.ORIGIN.split(',') : ['http://localhost:8080'],
+  firebaseProjectId: process.env.FIREBASE_PROJECT_ID,
+  firebasePrivateKeyId: process.env.FIREBASE_PRIVATE_KEY_ID,
+  firebasePrivateKey: process.env.FIREBASE_PRIVATE_KEY,
+  firebaseClientEmail: process.env.FIREBASE_CLIENT_EMAIL,
 };
 
 export default config;
